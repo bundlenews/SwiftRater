@@ -11,6 +11,8 @@ import SwiftRater
 
 class ViewController: UIViewController {
 
+    var count: Int = 0
+  
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -18,7 +20,10 @@ class ViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        SwiftRater.check()
     }
 
+  @IBAction func incrementSignificantUsageCount(_ sender: UIButton) {
+    SwiftRater.incrementSignificantUsageCount()
+    SwiftRater.check()
+  }
 }
