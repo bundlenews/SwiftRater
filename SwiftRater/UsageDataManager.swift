@@ -15,7 +15,6 @@ class UsageDataManager {
 
     var daysUntilPrompt: Int = SwiftRaterInvalid
     var usesUntilPrompt: Int = SwiftRaterInvalid
-    var significantUsesUntilPrompt: Int = rateOrder[0]
     var daysBeforeReminding: Int = SwiftRaterInvalid
 
     var showLaterButton: Bool = true
@@ -24,6 +23,7 @@ class UsageDataManager {
     static private let keySwiftRaterFirstUseDate = "keySwiftRaterFirstUseDate"
     static private let keySwiftRaterUseCount = "keySwiftRaterUseCount"
     static private let keySwiftRaterSignificantEventCount = "keySwiftRaterSignificantEventCount"
+    static private let keySwiftRaterSignificantUsesUntilPrompt = "keySwiftRaterSignificantUsesUntilPrompt"
     static private let keySwiftRaterRateDone = "keySwiftRaterRateDone"
     static private let keySwiftRaterTrackingVersion = "keySwiftRaterTrackingVersion"
     static private let keySwiftRaterReminderRequestDate = "keySwiftRaterReminderRequestDate"
@@ -37,6 +37,7 @@ class UsageDataManager {
             UsageDataManager.keySwiftRaterFirstUseDate: 0,
             UsageDataManager.keySwiftRaterUseCount: 0,
             UsageDataManager.keySwiftRaterSignificantEventCount: 0,
+            UsageDataManager.keySwiftRaterSignificantUsesUntilPrompt: significantUsesUntilPrompt,
             UsageDataManager.keySwiftRaterRateDone: false,
             UsageDataManager.keySwiftRaterTrackingVersion: "",
             UsageDataManager.keySwiftRaterReminderRequestDate: 0
@@ -108,6 +109,18 @@ class UsageDataManager {
             userDefaults.set(newValue, forKey: UsageDataManager.keySwiftRaterSignificantEventCount)
             userDefaults.synchronize()
         }
+    }
+  
+    var significantUsesUntilPrompt: Int {
+      get {
+        let count = userDefaults.integer(forKey: UsageDataManager.keySwiftRaterSignificantUsesUntilPrompt)
+        
+        return count == 0 ? rateOrder[0] : count
+      }
+      set {
+        userDefaults.set(newValue, forKey: UsageDataManager.keySwiftRaterSignificantUsesUntilPrompt)
+        userDefaults.synchronize()
+      }
     }
 
     var ratingConditionsHaveBeenMet: Bool {
