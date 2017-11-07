@@ -160,7 +160,7 @@ class UsageDataManager {
 
     func saveReminderRequestDate() {
         let index = (rateOrder.index(of: significantUsesUntilPrompt) ?? -1) + 1
-        significantUsesUntilPrompt = index != rateOrder.count - 1 ? rateOrder[index] : rateOrder[rateOrder.count - 1]
+        significantUsesUntilPrompt = index != rateOrder.count - 1 ? rateOrder[index - 1] : rateOrder[rateOrder.count - 1]
         reminderRequestToRate = Date().timeIntervalSince1970
     }
     
