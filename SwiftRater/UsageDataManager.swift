@@ -12,14 +12,14 @@ let SwiftRaterInvalid: Int = -1
 let rateOrder: [Int] = [10, 30, 60, 100, 150, 210, 280, 360, 450]
 
 class UsageDataManager {
-
+    
     var daysUntilPrompt: Int = SwiftRaterInvalid
     var usesUntilPrompt: Int = SwiftRaterInvalid
     var daysBeforeReminding: Int = SwiftRaterInvalid
-
+    
     var showLaterButton: Bool = true
     var debugMode: Bool = false
-
+    
     static private let keySwiftRaterFirstUseDate = "keySwiftRaterFirstUseDate"
     static private let keySwiftRaterUseCount = "keySwiftRaterUseCount"
     static private let keySwiftRaterSignificantEventCount = "keySwiftRaterSignificantEventCount"
@@ -27,11 +27,11 @@ class UsageDataManager {
     static private let keySwiftRaterRateDone = "keySwiftRaterRateDone"
     static private let keySwiftRaterTrackingVersion = "keySwiftRaterTrackingVersion"
     static private let keySwiftRaterReminderRequestDate = "keySwiftRaterReminderRequestDate"
-
+    
     static var shared = UsageDataManager()
-
+    
     let userDefaults = UserDefaults.standard
-
+    
     private init() {
         let defaults = [
             UsageDataManager.keySwiftRaterFirstUseDate: 0,
@@ -45,7 +45,7 @@ class UsageDataManager {
         let ud = UserDefaults.standard
         ud.register(defaults: defaults)
     }
-
+    
     var isRateDone: Bool {
         get {
             return userDefaults.bool(forKey: UsageDataManager.keySwiftRaterRateDone)
@@ -55,7 +55,7 @@ class UsageDataManager {
             userDefaults.synchronize()
         }
     }
-
+    
     var trackingVersion: String {
         get {
             return userDefaults.string(forKey: UsageDataManager.keySwiftRaterTrackingVersion) ?? ""
@@ -65,11 +65,11 @@ class UsageDataManager {
             userDefaults.synchronize()
         }
     }
-
+    
     private var firstUseDate: TimeInterval {
         get {
             let value = userDefaults.double(forKey: UsageDataManager.keySwiftRaterFirstUseDate)
-
+            
             if value == 0 {
                 // store first launch date time
                 let firstLaunchTimeInterval = Date().timeIntervalSince1970
@@ -80,7 +80,7 @@ class UsageDataManager {
             }
         }
     }
-
+    
     private var reminderRequestToRate: TimeInterval {
         get {
             return userDefaults.double(forKey: UsageDataManager.keySwiftRaterReminderRequestDate)
@@ -90,7 +90,7 @@ class UsageDataManager {
             userDefaults.synchronize()
         }
     }
-
+    
     private var usesCount: Int {
         get {
             return userDefaults.integer(forKey: UsageDataManager.keySwiftRaterUseCount)
@@ -100,7 +100,7 @@ class UsageDataManager {
             userDefaults.synchronize()
         }
     }
-
+    
     private var significantEventCount: Int {
         get {
             return userDefaults.integer(forKey: UsageDataManager.keySwiftRaterSignificantEventCount)
@@ -110,19 +110,19 @@ class UsageDataManager {
             userDefaults.synchronize()
         }
     }
-  
+    
     var significantUsesUntilPrompt: Int {
-      get {
-        let count = userDefaults.integer(forKey: UsageDataManager.keySwiftRaterSignificantUsesUntilPrompt)
-        
-        return count == 0 ? rateOrder[0] : count
-      }
-      set {
-        userDefaults.set(newValue, forKey: UsageDataManager.keySwiftRaterSignificantUsesUntilPrompt)
-        userDefaults.synchronize()
-      }
+        get {
+            let count = userDefaults.integer(forKey: UsageDataManager.keySwiftRaterSignificantUsesUntilPrompt)
+            
+            return count == 0 ? rateOrder[0] : count
+        }
+        set {
+            userDefaults.set(newValue, forKey: UsageDataManager.keySwiftRaterSignificantUsesUntilPrompt)
+            userDefaults.synchronize()
+        }
     }
-
+    
     var ratingConditionsHaveBeenMet: Bool {
         guard !debugMode else { // if debug mode, return always true
             printMessage(message: " In debug mode")
@@ -131,16 +131,16 @@ class UsageDataManager {
         guard !isRateDone else { // if already rated, return false
             printMessage(message: " Already rated")
             return false }
-
+        
         // check if the user has done enough significant events
         if significantUsesUntilPrompt != SwiftRaterInvalid {
-          printMessage(message: " will check significantUsesUntilPrompt")
-          guard significantEventCount < significantUsesUntilPrompt else { return true }
+            printMessage(message: " will check significantUsesUntilPrompt")
+            guard significantEventCount < significantUsesUntilPrompt else { return true }
         }
-
+        
         return false
     }
-
+    
     func reset() {
         userDefaults.set(0, forKey: UsageDataManager.keySwiftRaterFirstUseDate)
         userDefaults.set(0, forKey: UsageDataManager.keySwiftRaterUseCount)
@@ -149,21 +149,31 @@ class UsageDataManager {
         userDefaults.set(0, forKey: UsageDataManager.keySwiftRaterReminderRequestDate)
         userDefaults.synchronize()
     }
-
+    
     func incrementUseCount() {
         usesCount = usesCount + 1
-        
-        if rateOrder.last == usesCount {
-            isRateDone = true
-        }
     }
-
+    
     func incrementSignificantUseCount() {
         significantEventCount = significantEventCount + 1
     }
-
+    
+    func getUseCount() -> Int {
+        return usesCount
+    }
+    
+    func getSignificantUseCount() -> Int {
+        return significantEventCount
+    }
+    
+    func setRateDoneIfNeeded() {
+        if rateOrder.last == significantEventCount {
+            isRateDone = true
+        }
+    }
+    
     func saveReminderRequestDate() {
-      let index = significantUsesUntilPrompt == rateOrder.last ? rateOrder.endIndex - 1 : (rateOrder.index(of: significantUsesUntilPrompt) ?? -1) + 1
+        let index = significantUsesUntilPrompt == rateOrder.last ? rateOrder.endIndex - 1 : (rateOrder.index(of: significantUsesUntilPrompt) ?? -1) + 1
         significantUsesUntilPrompt = index != rateOrder.count - 1 ? rateOrder[index] : rateOrder[rateOrder.count - 1]
         reminderRequestToRate = Date().timeIntervalSince1970
     }
@@ -174,3 +184,4 @@ class UsageDataManager {
         }
     }
 }
+
