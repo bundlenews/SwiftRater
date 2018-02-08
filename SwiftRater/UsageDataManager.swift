@@ -152,6 +152,10 @@ class UsageDataManager {
 
     func incrementUseCount() {
         usesCount = usesCount + 1
+        
+        if rateOrder.last == usesCount {
+            isRateDone = true
+        }
     }
 
     func incrementSignificantUseCount() {
